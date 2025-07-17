@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-class rewriter:
+class Rewriter:
     def __init__(self):
         self.model = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
         self.tokenizer = AutoTokenizer.from_pretrained(self.model)
@@ -12,7 +12,14 @@ class rewriter:
         )
     
     def rewrite(self, story):
-        prompt = f"[INST] Rewrite this story in a more engaging way: {story} [/INST]"
+        prompt = f"""[INST]
+You are a professional story writer known for your rich third-person narration style.
+
+Rewrite the following passage from a strong third-person narrative perspective. Enhance the flow, add vivid descriptions, and make the emotions and actions more immersive. Keep the events and character dialogue faithful to the original.
+
+Text:
+{story}
+[/INST]"""
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model_instance.device)
         with torch.no_grad():
             output = self.model_instance.generate(

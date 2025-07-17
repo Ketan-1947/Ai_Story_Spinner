@@ -1,3 +1,5 @@
+import spacy
+from story_rewriter import Rewriter
 from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 
@@ -25,10 +27,26 @@ def get_story(html_content):
     paras = story_div.find_all('p')
     with open("chapter_content.txt", "w", encoding="utf-8") as file:
         for para in paras:
-            file.write(para.get_text(strip=True) + "\n\n")
+            file.write(para.get_text(strip=True) + " ")
     print("Content extracted and saved to chapter_content.txt")
+
+def rewrite_story(chapter_content_file="chapter_content.txt"):
+    rewriter = Rewriter()
+    with open(chapter_content_file, "r", encoding="utf-8") as file:
+        story = file.read()
+
+    nlp = spacy.load("en_core_web_sm")
+    doc = nlp(story)
+    sentences = [sent.text for sent in doc.sents]
+
+    for i in range(0, len(sentences), 10):
+        chunk = " ".join(sentences[i:i+10])
+        rewritten_chunk = rewriter.rewrite(chunk).split('Text:')[1].strip()
+        print(rewritten_chunk, end = "")
+
 
 if __name__ == "__main__":
 
-    chapter_url = "https://en.wikisource.org/wiki/The_Gates_of_Morning/Book_1/Chapter_2" # example url
+    chapter_url = "https://en.wikisource.org/wiki/The_Gates_of_Morning/Book_1/Chapter_1" # example url
     html_content = take_screenshot(chapter_url)
+    rewrite_story()
